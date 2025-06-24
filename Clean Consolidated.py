@@ -26,7 +26,7 @@ relegation_perf = float(input("Enter average points expected for relegation: "))
 attendance = float(input("Enter average stadium attendance (as a fraction between 0 and 1): "))  # e.g., 0.96 for 96% attendance
 
 def adjusted_attendance_count (performance, relegation_perf, europa_perf, ucl_perf):
-    attendance_ucl_adjustment = np.where(performance > ucl_perf, 1.068, 1)   #60
+    attendance_ucl_adjustment = np.where(performance > ucl_perf, 1.085, 1)   #60
     attendance_europpa_adjustment = np.where(performance > europa_perf, 1.035, 1)   #53
     attendance_relegation_adjustment = np.where(performance < relegation_perf, 0.935, 1)   #28.5
     adjusted_attendance_inside = (
@@ -53,7 +53,7 @@ elif other_clubs_in_region < 3:
         club_adjusted_attendance = adjusted_attendance * 1.01
 else:
    club_adjusted_attendance = adjusted_attendance * 1
-club_adjusted_attendance = np.clip(club_adjusted_attendance, 0, 0.999)
+club_adjusted_attendance = np.clip(club_adjusted_attendance, 0, 0.9999999)
     
  # GLOBAL FOLLOWING   
     # Social media follower score (counts of mentions/posts)
@@ -126,12 +126,17 @@ global_norm = (0.35 * g_trends_norm) + (0.65 * follower_norm)
 geo_norm = city_gdp_norm + (country_bv_mp * city_score)
 geography_norm = np.full(num_simulations, (geo_norm - 0.1) / (1.9))
 
+    # Europe Brand 
+eu_brand_multiplier = np.where(performance > ucl_perf, 1.25, 
+                               np.where(performance > europa_perf, 1.1, 1))
+europe_brand_multiplier = np.mean (eu_brand_multiplier)
+
 # Brand Index
 brand_index = (
     0.50 * local_norm +
     0.25 * global_norm  +
     0.25 * geography_norm
-)
+) * europe_brand_multiplier
 
 
 #SPORTING POTENTIAL
@@ -334,13 +339,45 @@ def sales():
 
 sales_multiplier = sales()
 
-financial_multiplier = (0.23 * wage_to_income_ratio_multiplier) + (0.10 * profitability_multiplier) + (0.67 *sales_multiplier)
+financial_multiplier_1 = (0.23 * wage_to_income_ratio_multiplier) + (0.10 * profitability_multiplier) + (0.67 *sales_multiplier)
 
+#Stadium Multiplier
+stad_owner = input("Does the Club own the stadium (Y/N): ")
+if stad_owner == "N":
+    stad_owner_multiplier = 0.85
+else:
+    stad_owner_multiplier = 1
+
+financial_multiplier_2 = financial_multiplier_1 * stad_owner_multiplier
+
+shared_stad = input("Does the Club share the stadium (Y/N): ")
+if shared_stad == "Y":
+    shared_stad_multiplier = 0.93
+else:
+    shared_stad_multiplier = 1
+
+financial_multiplier_3 = financial_multiplier_2 * shared_stad_multiplier
+
+    # Europe Finance Multiplier
+eu_finance_multiplier = np.where(performance > ucl_perf, 1.25, 
+                               np.where(performance > europa_perf, 1.15, 1))
+europe_finance_multiplier = np.mean (eu_finance_multiplier)
+
+financial_multiplier_4 = financial_multiplier_3 * europe_finance_multiplier
+
+    #Relegation Multiplier
+if country_input == "england":
+    rel_multiplier = np.where(performance<relegation_perf, 0.675, 1)
+else:
+        rel_multiplier = np.where(performance<relegation_perf, 0.75, 1)
+relegation_multiplier = np.mean(rel_multiplier)
+
+financial_multiplier = financial_multiplier_4 * relegation_multiplier
 
 #Weights
-brand_index_weight = 0.23
-sporting_norm_weight = 0.33
-financial_multiplier_weight = 0.44
+brand_index_weight = 0.30
+sporting_norm_weight = 0.4
+financial_multiplier_weight = 0.30
 
 Value_Index = (
     (brand_index_weight * (brand_index)) + 
@@ -362,7 +399,6 @@ if country_input == "england":
         english_multiplier = 1.35
     else:
         english_multiplier = 1
-#FINAL VALUE
     club_valuations = Value_Index * 100 * english_multiplier
 else:
     club_valuations = Value_Index * 100
@@ -371,7 +407,7 @@ else:
 plt.figure(figsize=(10, 6))
 plt.hist(club_valuations, bins=50, color='skyblue', edgecolor='black')
 plt.title('Monte Carlo Simulation of Football Club Valuation')
-plt.xlabel('Valuation (in million $)')
+plt.xlabel('Valuation (in million Euros)')
 plt.ylabel('Frequency')
 plt.grid(True)
 plt.show()

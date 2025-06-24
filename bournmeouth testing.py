@@ -13,7 +13,7 @@ population = 200
 population_multiplier = np.full(num_simulations, (np.log(population*1000) - np.log(80*1000)) / (np.log(10000*1000) - np.log(80*1000))) # np.log15000 is taken for europe, np.log50000 is taken for worldwide
 
     # Past performance
-mu_perf = 44.3
+mu_perf = 43.4
 sigma_perf = 7
 performance = np.random.normal(loc=mu_perf, scale=sigma_perf, size=num_simulations)
 
@@ -26,7 +26,7 @@ relegation_perf = 31.8
 attendance = 0.91 # e.g., 0.96 for 96% attendance
 
 def adjusted_attendance_count (performance, relegation_perf, europa_perf, ucl_perf):
-    attendance_ucl_adjustment = np.where(performance > ucl_perf, 1.068, 1)   #60
+    attendance_ucl_adjustment = np.where(performance > ucl_perf, 1.085, 1)   #60
     attendance_europpa_adjustment = np.where(performance > europa_perf, 1.035, 1)   #53
     attendance_relegation_adjustment = np.where(performance < relegation_perf, 0.935, 1)   #28.5
     adjusted_attendance_inside = (
@@ -126,12 +126,18 @@ global_norm = (0.35 * g_trends_norm) + (0.65 * follower_norm)
 geo_norm = city_gdp_norm + (country_bv_mp * city_score)
 geography_norm = np.full(num_simulations, (geo_norm - 0.1) / (1.9))
 
+    # Europe Brand 
+eu_brand_multiplier = np.where(performance > ucl_perf, 1.25, 
+                               np.where(performance > europa_perf, 1.1, 1))
+europe_brand_multiplier = np.mean (eu_brand_multiplier)
+
 # Brand Index
 brand_index = (
     0.50 * local_norm +
     0.25 * global_norm  +
     0.25 * geography_norm
-)
+) * europe_brand_multiplier
+
 
 
 #SPORTING POTENTIAL
@@ -206,7 +212,7 @@ net_values = simulated_values + transfer_outgoing
 if np.max(net_values) == np.min(net_values):
     net_values_norm = np.zeros(num_simulations)
 else:
-    net_values_norm = (np.log(net_values) - np.log(np.min(net_values))) / np.log((np.max(net_values)) - np.log(np.min(net_values)))
+    net_values_norm = (np.log(net_values) - np.log(np.min(net_values))) / (np.log(np.max(net_values)) - np.log(np.min(net_values)))
 
 # STADIUM CAPACITY
 capacity = 12000
@@ -273,25 +279,25 @@ sporting_norm= (
 # FINANCIAL VALUE
 
     # Non-Transfer Revenue
-operating_income = 169500
-payroll = 130170
-profit_before_tax = -19601
-max_profit_before_tax = 44000
+operating_income = 156329
+payroll = 120170
+profit_before_tax = -34601
+max_profit_before_tax = -18000
 min_profit_before_tax = -55123
 profit_before_tax_norm = ((profit_before_tax - min_profit_before_tax)/ (max_profit_before_tax - min_profit_before_tax))
 
 def wage_to_income_ratio ():
     wage_income_ratio_inside = payroll/operating_income
     if wage_income_ratio_inside < 0.5:
-        wir_multiplier = 2.5
+        wir_multiplier = 2.4
     elif wage_income_ratio_inside < 0.6:
         wir_multiplier = 2.2
     elif wage_income_ratio_inside < 0.7:
         wir_multiplier = 2.0
     elif wage_income_ratio_inside < 0.8:
-        wir_multiplier = 1.7
+        wir_multiplier = 1.65
     elif wage_income_ratio_inside < 0.9:
-        wir_multiplier = 1.4
+        wir_multiplier = 1.35
     elif wage_income_ratio_inside < 1.0:
         wir_multiplier = 1.
     elif wage_income_ratio_inside < 1.1:
@@ -326,18 +332,50 @@ def profit_multiple ():
 profitability_multiplier = profit_multiple ()
 
 def sales():
-    sales_norm = ((np.log(operating_income * 1000) - np.log(5000*1000))/(np.log(55000*1000) - np.log(5000*1000)))
+    sales_norm = ((np.log(operating_income * 1000) - np.log(5000*1000))/(np.log(80000*1000) - np.log(5000*1000)))
     return sales_norm
 
 sales_multiplier = sales()
 
-financial_multiplier = (0.23 * wage_to_income_ratio_multiplier) + (0.10 * profitability_multiplier) + (0.67 *sales_multiplier)
+financial_multiplier_1 = (0.23 * wage_to_income_ratio_multiplier) + (0.10 * profitability_multiplier) + (0.67 *sales_multiplier)
 
+  #Stadium Multiplier
+stad_owner = "Y"
+if stad_owner == "N":
+    stad_owner_multiplier = 0.85
+else:
+    stad_owner_multiplier = 1
+
+financial_multiplier_2 = financial_multiplier_1 * stad_owner_multiplier
+
+shared_stad = "N"
+if shared_stad == "Y":
+    shared_stad_multiplier = 0.93
+else:
+    shared_stad_multiplier = 1
+
+financial_multiplier_3 = financial_multiplier_2 * shared_stad_multiplier
+
+    # Europe Finance Multiplier
+eu_finance_multiplier = np.where(performance > ucl_perf, 1.25, 
+                               np.where(performance > europa_perf, 1.1, 1))
+europe_finance_multiplier = np.mean (eu_finance_multiplier)
+
+financial_multiplier_4 = financial_multiplier_3 * europe_finance_multiplier
+
+    #Relegation Multiplier
+if country_input == "england":
+    rel_multiplier = np.where(performance<relegation_perf, 0.75, 1)
+else:
+        rel_multiplier = np.where(performance<relegation_perf, 0.8, 1)
+relegation_multiplier = np.mean(rel_multiplier)
+
+financial_multiplier = financial_multiplier_4 * relegation_multiplier
 
 #Weights
-brand_index_weight = 0.23
-sporting_norm_weight = 0.33
-financial_multiplier_weight = 0.44
+brand_index_weight = 0.3
+sporting_norm_weight = 0.40
+financial_multiplier_weight = 0.3
 
 Value_Index = (
     (brand_index_weight * (brand_index)) + 
@@ -365,11 +403,12 @@ if country_input == "england":
 else:
     club_valuations = Value_Index*100
 
+
 #OUTPUT
 plt.figure(figsize=(10, 6))
 plt.hist(club_valuations, bins=50, color='skyblue', edgecolor='black')
 plt.title('Monte Carlo Simulation of Football Club Valuation')
-plt.xlabel('Valuation (in million $)')
+plt.xlabel('Valuation (in million GBP)')
 plt.ylabel('Frequency')
 plt.grid(True)
 plt.show()
