@@ -53,6 +53,7 @@ elif other_clubs_in_region < 3:
         club_adjusted_attendance = adjusted_attendance * 1.025
 else:
    club_adjusted_attendance = adjusted_attendance * 1
+
 club_adjusted_attendance = np.clip(club_adjusted_attendance, 0, 0.999)
     
  # GLOBAL FOLLOWING   
@@ -83,7 +84,7 @@ df = pd.read_excel("/Users/shashwatgupta/Desktop/Started/CountryBV.xlsx")
 
 df['Country'] = df['Country'].str.strip().str.lower()
 
-country_input = input("Enter a country name: ").strip().lower()
+country_input = "france"
 
 match = df[df['Country'] == country_input]
 
@@ -129,7 +130,7 @@ geography_norm = np.full(num_simulations, (geo_norm - 0.1) / (1.9))
     # Europe Brand 
 eu_brand_multiplier = np.where(performance > ucl_perf, 1.25, 
                                np.where(performance > europa_perf, 1.1, 1))
-europe_brand_multiplier = np.mean (eu_brand_multiplier)
+europe_brand_multiplier = (eu_brand_multiplier)
 
 # Brand Index
 brand_index = (
@@ -428,3 +429,15 @@ print (f"Value Index: {np.mean(Value_Index):,.5f}")
 print (f"Fincial Multiplier: {np.mean(financial_multiplier):,.5f}")
 print (f"Brand Index: {np.mean(brand_index):,.5f}")
 print (f"Sporting Potential Score: {np.mean(sporting_norm):,.5f}")
+
+# Create DataFrame
+results_df = pd.DataFrame({
+    'Club Valuation (M€)': club_valuations,
+    'Value Index': Value_Index,
+    'Brand Index': brand_index,
+    'Sporting Score': sporting_norm,
+    'Financial Multiplier': financial_multiplier,
+})
+
+# Save to CSV
+results_df.to_csv("/Users/shashwatgupta/Desktop/Started/strasbourg_valuations.csv", index=False)
