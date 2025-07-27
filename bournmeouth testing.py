@@ -83,7 +83,7 @@ df = pd.read_excel("/Users/shashwatgupta/Desktop/Started/CountryBV.xlsx")
 
 df['Country'] = df['Country'].str.strip().str.lower()
 
-country_input = input("Enter a country name: ").strip().lower()
+country_input = "england"
 
 match = df[df['Country'] == country_input]
 
