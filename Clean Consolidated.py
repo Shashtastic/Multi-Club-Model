@@ -379,6 +379,14 @@ brand_index_weight = 0.30
 sporting_norm_weight = 0.4
 financial_multiplier_weight = 0.30
 
+#Private Equity Weights
+private_equity = input("Is buyer Private Equity or Venture Capital(Y/N): ")
+if private_equity == "Y":
+    brand_index_weight = 0.3
+    sporting_norm_weight = 0.25
+    financial_multiplier_weight = 0.45
+
+#Value
 Value_Index = (
     (brand_index_weight * (brand_index)) + 
     (sporting_norm_weight * ((sporting_norm)) + 
@@ -419,3 +427,4 @@ print (f"Value Index: {np.mean(Value_Index):,.5f}")
 print (f"Fincial Multiplier: {np.mean(financial_multiplier):,.5f}")
 print (f"Brand Index: {np.mean(brand_index):,.5f}")
 print (f"Sporting Potential Score: {np.mean(sporting_norm):,.5f}")
+
