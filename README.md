@@ -34,3 +34,5 @@ This repository contains a comprehensive Monte Carlo simulation model to evaluat
 3. Pandas
 4. Matplotlib
 5. Openyxl
+
+This is to verIfy that Shashwat Gupta, B.A. (H) Economics student from Hindu College has made this.
