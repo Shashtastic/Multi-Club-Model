@@ -9,26 +9,26 @@ num_simulations = 10000
 # LOCAL FOLLOWING 
 
     # Population
-population = float(input("Enter population of city in thosands: ")) #291
+population = float(input("Enter population of city in thosands: ")) # e.g.: 291 for 291,301
 population_multiplier = np.full(num_simulations, (np.log(population) - np.log(100)) / (np.log(16000) - np.log(100))) # np.log15000 is taken for europe, np.log50000 is taken for worldwide
 
     # Past performance
-mu_perf = float(input("Enter average points achieved: "))  #38.625
-sigma_perf = float(input("Enter standard deviation of points achieved: ")) #5.3
+mu_perf = float(input("Enter average points achieved: "))  
+sigma_perf = float(input("Enter standard deviation of points achieved: ")) 
 performance = np.random.normal(loc=mu_perf, scale=sigma_perf, size=num_simulations)
 
     # Thresholds
-ucl_perf = float(input("Enter average points expected for UCL Qualification: "))  #60
-europa_perf = float(input("Enter average points expected for Europa Qualification: ")) #53
-relegation_perf = float(input("Enter average points expected for relegation: ")) #28.5
+ucl_perf = float(input("Enter average points expected for UCL Qualification: "))  
+europa_perf = float(input("Enter average points expected for Europa Qualification: ")) 
+relegation_perf = float(input("Enter average points expected for relegation: "))
 
-   # Attendance rate (bounded between 0 and 1) — higher means better sentiment
-attendance = float(input("Enter average stadium attendance (as a fraction between 0 and 1): "))  # e.g., 0.96 for 96% attendance
+   # Attendance rate (bounded between 0 and 1) Higher means better sentiment
+attendance = float(input("Enter average stadium attendance (as a fraction between 0 and 1): "))  # e.g.: 0.96 for 96% attendance
 
 def adjusted_attendance_count (performance, relegation_perf, europa_perf, ucl_perf):
-    attendance_ucl_adjustment = np.where(performance > ucl_perf, 1.085, 1)   #60
-    attendance_europpa_adjustment = np.where(performance > europa_perf, 1.035, 1)   #53
-    attendance_relegation_adjustment = np.where(performance < relegation_perf, 0.935, 1)   #28.5
+    attendance_ucl_adjustment = np.where(performance > ucl_perf, 1.085, 1)  
+    attendance_europpa_adjustment = np.where(performance > europa_perf, 1.035, 1) 
+    attendance_relegation_adjustment = np.where(performance < relegation_perf, 0.935, 1)
     adjusted_attendance_inside = (
         attendance * 
         attendance_ucl_adjustment * 
@@ -57,7 +57,7 @@ club_adjusted_attendance = np.clip(club_adjusted_attendance, 0, 0.9999999)
     
  # GLOBAL FOLLOWING   
     # Social media follower score (counts of mentions/posts)
-total_social_media_followers = float(input("Enter total social media presence in thousands: "))  # e.g., 787 for 787k followers
+total_social_media_followers = float(input("Enter total social media presence in thousands: "))  # e.g.: 787 for 787,540 followers
 
 def adjusted_follower_count(performance, relegation_perf, europa_perf, ucl_perf):
     follower_adjustment = np.zeros_like(performance)
@@ -76,7 +76,7 @@ g_trends_average = float(input("Enter average value of google trends over past 5
 
 # GEOGRAPHICAL CONSIDERATIONS
     # City economic prosperity index (e.g., GDP per capita, scaled index between 0 and 1)
-city_gdp_per_capita_usd = int(input("Enter GDP per capita in USD: "))  # e.g., $15,000 per person
+city_gdp_per_capita_usd = int(input("Enter GDP per capita in USD: "))  # e.g.: $15,000 per person
 
     # Country of club expats in top 5 leagues factor
 df = pd.read_excel("/Users/shashwatgupta/Desktop/Started/CountryBV.xlsx")
@@ -411,12 +411,18 @@ if country_input == "england":
 else:
     club_valuations = Value_Index * 100
 
-#HISTOGRAM
+mean_val = np.mean(club_valuations)
+median_val = np.median(club_valuations)
+
+#OUTPUT
 plt.figure(figsize=(10, 6))
 plt.hist(club_valuations, bins=50, color='skyblue', edgecolor='black')
+plt.axvline(mean_val, color='red', linestyle='dashed', linewidth=2, label=f"Mean: {mean_val:.2f}")
+plt.axvline(median_val, color='green', linestyle='dotted', linewidth=2, label=f"Median: {median_val:.2f}")
 plt.title('Monte Carlo Simulation of Football Club Valuation')
-plt.xlabel('Valuation (in million Euros)')
+plt.xlabel('Valuation (in million GBP)')
 plt.ylabel('Frequency')
+plt.legend()
 plt.grid(True)
 plt.show()
 
