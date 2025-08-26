@@ -23,12 +23,12 @@ europa_perf = 62.2
 relegation_perf = 31.8
 
    # Attendance rate (bounded between 0 and 1) — higher means better sentiment
-attendance = 0.91 # e.g., 0.96 for 96% attendance
+attendance = 0.91 
 
 def adjusted_attendance_count (performance, relegation_perf, europa_perf, ucl_perf):
-    attendance_ucl_adjustment = np.where(performance > ucl_perf, 1.085, 1)   #60
-    attendance_europpa_adjustment = np.where(performance > europa_perf, 1.035, 1)   #53
-    attendance_relegation_adjustment = np.where(performance < relegation_perf, 0.935, 1)   #28.5
+    attendance_ucl_adjustment = np.where(performance > ucl_perf, 1.085, 1)
+    attendance_europpa_adjustment = np.where(performance > europa_perf, 1.035, 1) 
+    attendance_relegation_adjustment = np.where(performance < relegation_perf, 0.935, 1) 
     adjusted_attendance_inside = (
         attendance * 
         attendance_ucl_adjustment * 
@@ -403,13 +403,18 @@ if country_input == "england":
 else:
     club_valuations = Value_Index*100
 
+mean_val = np.mean(club_valuations)
+median_val = np.median(club_valuations)
 
 #OUTPUT
 plt.figure(figsize=(10, 6))
 plt.hist(club_valuations, bins=50, color='skyblue', edgecolor='black')
+plt.axvline(mean_val, color='red', linestyle='dashed', linewidth=2, label=f"Mean: {mean_val:.2f}")
+plt.axvline(median_val, color='green', linestyle='dotted', linewidth=2, label=f"Median: {median_val:.2f}")
 plt.title('Monte Carlo Simulation of Football Club Valuation')
 plt.xlabel('Valuation (in million GBP)')
 plt.ylabel('Frequency')
+plt.legend()
 plt.grid(True)
 plt.show()
 
