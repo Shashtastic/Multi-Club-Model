@@ -43,4 +43,5 @@ Final output for selected examples is displayed in the following manner:-
 
 #
 <center><b>Valuation for Strasbourg Alsace</b></center>
-<img width="1000" height="600" alt="Strasbourg Example" src="https://github.com/user-attachments/assets/8a1b0534-d97b-4627-b7c8-ab2b0aa400c7" />
+<img width="1000" height="600" alt="Strabourg Example" src="https://github.com/user-attachments/assets/6942176d-b419-4401-a46f-fc54addbb1ce" />
+
