@@ -35,4 +35,12 @@ This repository contains a comprehensive Monte Carlo simulation model to evaluat
 4. Matplotlib
 5. Openyxl
 
-This is to verIfy that Shashwat Gupta, B.A. (H) Economics student from Hindu College has made this.
+# Examples
+Final output for selected examples is displayed in the following manner:-
+#
+<center><b>Valuation for Bournemouth</b></center>
+<img width="1000" height="600" alt="Bournemouth Valuation" src="https://github.com/user-attachments/assets/ae46bc94-b760-4606-9f40-9cbcb7bca634" />
+
+#
+<center><b>Valuation for Strasbourg Alsace</b></center>
+<img width="1000" height="600" alt="Strasbourg Example" src="https://github.com/user-attachments/assets/8a1b0534-d97b-4627-b7c8-ab2b0aa400c7" />
