@@ -23,12 +23,12 @@ europa_perf = 53
 relegation_perf = 28.5
 
    # Attendance rate (bounded between 0 and 1) — higher means better sentiment
-attendance = 0.96 # e.g., 0.96 for 96% attendance
+attendance = 0.96 
 
 def adjusted_attendance_count (performance, relegation_perf, europa_perf, ucl_perf):
-    attendance_ucl_adjustment = np.where(performance > ucl_perf, 1.085, 1)   #60
-    attendance_europpa_adjustment = np.where(performance > europa_perf, 1.035, 1)   #53
-    attendance_relegation_adjustment = np.where(performance < relegation_perf, 0.935, 1)   #28.5
+    attendance_ucl_adjustment = np.where(performance > ucl_perf, 1.085, 1)   
+    attendance_europpa_adjustment = np.where(performance > europa_perf, 1.035, 1) 
+    attendance_relegation_adjustment = np.where(performance < relegation_perf, 0.935, 1) 
     adjusted_attendance_inside = (
         attendance * 
         attendance_ucl_adjustment * 
@@ -58,7 +58,7 @@ club_adjusted_attendance = np.clip(club_adjusted_attendance, 0, 0.999)
     
  # GLOBAL FOLLOWING   
     # Social media follower score (counts of mentions/posts)
-total_social_media_followers = 300 # e.g., 787 for 787k followers
+total_social_media_followers = 300 
 
 def adjusted_follower_count(performance, relegation_perf, europa_perf, ucl_perf):
     follower_adjustment = np.zeros_like(performance)
@@ -77,7 +77,7 @@ g_trends_average = 3.518
 
 # GEOGRAPHICAL CONSIDERATIONS
     # City economic prosperity index (e.g., GDP per capita, scaled index between 0 and 1)
-city_gdp_per_capita_usd = 42000  # e.g., 15000 per person
+city_gdp_per_capita_usd = 42000  
 
     # Country of club expats in top 5 leagues factor
 df = pd.read_excel("/Users/shashwatgupta/Desktop/Started/CountryBV.xlsx")
@@ -416,13 +416,21 @@ else:
     club_valuations = Value_Index*100
 
 
+mean_val = np.mean(club_valuations)
+median_val = np.median(club_valuations)
+
+#OUTPUT
 plt.figure(figsize=(10, 6))
 plt.hist(club_valuations, bins=50, color='skyblue', edgecolor='black')
+plt.axvline(mean_val, color='red', linestyle='dashed', linewidth=2, label=f"Mean: {mean_val:.2f}")
+plt.axvline(median_val, color='green', linestyle='dotted', linewidth=2, label=f"Median: {median_val:.2f}")
 plt.title('Monte Carlo Simulation of Football Club Valuation')
-plt.xlabel('Valuation (in million $)')
+plt.xlabel('Valuation (in million GBP)')
 plt.ylabel('Frequency')
+plt.legend()
 plt.grid(True)
 plt.show()
+
 print (f"Median Club Valuation: {np.median(club_valuations):,.5f}")
 print (f"Mean Club Valuation: {np.mean(club_valuations):,.5f}")
 print (f"Value Index: {np.mean(Value_Index):,.5f}")
